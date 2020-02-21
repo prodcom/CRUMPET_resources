@@ -1,0 +1,104 @@
+---
+title: "flexdash_cRumpet"
+authour: "Jacob Conway Smith"
+output: 
+  flexdashboard::flex_dashboard:
+    source_code: embed
+runtime: shiny
+
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard) #if these are not already installed, you will have to install them using install.packages("packagename")
+library(plotly)
+library(tidyverse)
+library(shiny)
+library(shinyWidgets)
+library(gapminder)
+library(ggthemes)
+
+##import our example dataset (anything in this chunk, we can use globally)
+gapminder <- gapminder::gapminder %>% 
+  mutate(continent = as.character(continent), country = as.character(country)) %>% #for later, not important
+  arrange(., lifeExp)
+```
+
+
+
+Page 1
+==================
+Inputs {.sidebar}
+-------------------------------------
+
+```{r}
+# shiny inputs defined here
+sliderInput(inputId = "year_picker", label = "Year", animate = TRUE, value = 1952, min = 1952, max =2007, step = 5, sep = "")
+
+```
+ 
+Column
+-------------------------------------
+    
+### Chart 1
+    
+```{r}
+#shiny outputs defined here
+renderPlotly( ##this is the shiny elemenent tell shiny to render our graph when the input is selected
+  
+  gapminder %>% ##calls the dataset we imported
+    filter(year %in% input$year_picker) %>% #filters by year that the user has selected with the sliderInput above^^^
+  
+  ggplot(., mapping = aes(x = gdpPercap, y = lifeExp, size = pop, colour = continent)) + ##simple ggplot
+    geom_point() +
+    theme_economist()
+  
+             )
+```
+
+
+
+
+Page 2 - Your turn!
+==================
+
+Inputs {.sidebar}
+-------------------------------------
+```{r}
+# shiny inputs defined here (i.e. dropdown menus, sliders, etc.)
+# type shinyWidgets:: in the console to see a list of functions/menus/pickers
+
+# add your own input pickers that let's you select a continent and year to view. The defualt at the moment is Asia and 2002, but we want to be able to look at any continent in any year using a picker or a slider or whatever you think is ~groovy~
+
+#1. add a picker for the continent here:
+
+#2. add a slider for the year here:
+
+
+#3. Once you've applied and tested your inputs, try making the defaults "Asia" and 2002 that are already selected when the page is opened
+
+
+
+```
+
+Column
+-------------------------------------
+    
+### Chart 2
+```{r}
+#shiny outputs defined here (i.e. graphs and tables)
+renderPlotly( ##this is the shiny elemenent tell shiny to render our graph when the input is selected
+  
+  gapminder %>% ##calls the dataset we imported
+    filter(year %in% 2002, continent %in% "Asia") %>% #filters our dataset before sending to ggplot
+    
+  ggplot(., mapping = aes(x = reorder(country, lifeExp), y = lifeExp)) + ##simple ggplot
+    geom_col() +
+    theme_wsj() +
+    theme(axis.text.x = element_text(angle = 60)) +
+    xlab(label = "Countries") +
+    ylab(label = "Life Expectancy")   
+             )
+```
+
+
+
